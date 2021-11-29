@@ -13,9 +13,21 @@ from formUsuario import UsuarioForm
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 CSRFProtect(app)
-
+CSV_DIR = '/flask/'
 
 app.config['SECRET_KEY'] = os.urandom(24)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + CSV_DIR + 'bd.sqlite3'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+from database import db
+db.init_app(app)
+
+from Usuarios import Usuario
+from Equipamentos import Equipamento
+
+@app.before_first_request
+def inicializar_bd():
+    db.create_all()
 
 @app.route('/')
 def root():

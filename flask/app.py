@@ -7,6 +7,7 @@ from flask_wtf.csrf import CSRFProtect
 import logging
 import os
 
+from formEmprestimo import EmprestimoForm
 from formEquipamento import EquipamentoForm
 from formUsuario import UsuarioForm
 
@@ -24,6 +25,7 @@ db.init_app(app)
 
 from Usuarios import Usuario
 from Equipamentos import Equipamento
+from Emprestimo import Emprestimo
 
 @app.before_first_request
 def inicializar_bd():
@@ -63,13 +65,29 @@ def listar_equipamentos():
     #selecionar os equipamentos e mostrar no template equipamentos
     return ('Falta implementar')
 
+@app.route('/equipamento/listar_emprestimos')
+def listar_emprestimos():
+    return ('Falta')
 
 @app.route('/usuario/listar')
 def listar_usuarios():
     #selecionar os usuarios e mostrar no template usuarios
     return('Falta implementar')
 
+@app.route('/equipamento/emprestar',methods=['POST','GET'])
+def emprestar_equipamento():
+    #return('teste')
+    form = EmprestimoForm()
+    equipamentos = Equipamento.query.order_by(Equipamento.nome).all()
+    form.equipamento.choices = [(e.id,e.nome) for e in equipamentos]
 
-
+    if form.validate_on_submit():
+        nome = request.form['nome']
+        equipamento = int(request.form['equipamento'])
+        novoEmprestimo = Emprestimo(id_usuario=1,nome_pessoa=nome,id_equipamento=equipamento)
+        db.session.add(novoEmprestimo)
+        db.session.commit()
+        return(redirect(url_for('root')))
+    return(render_template('form.html',form=form,action=url_for('emprestar_equipamento')))
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=80, url_prefix='/app')

@@ -6,6 +6,7 @@ from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 import logging
 import os
+from datetime import date, datetime
 
 from formEmprestimo import EmprestimoForm
 from formEquipamento import EquipamentoForm
@@ -76,18 +77,33 @@ def listar_usuarios():
 
 @app.route('/equipamento/emprestar',methods=['POST','GET'])
 def emprestar_equipamento():
+    #esta dando erro, verificar oque é
     #return('teste')
     form = EmprestimoForm()
-    equipamentos = Equipamento.query.order_by(Equipamento.nome).all()
+    equipamentos = Equipamento.query.filter(Equipamento.disponivel == True).order_by(Equipamento.nome).all()
     form.equipamento.choices = [(e.id,e.nome) for e in equipamentos]
 
     if form.validate_on_submit():
         nome = request.form['nome']
         equipamento = int(request.form['equipamento'])
         novoEmprestimo = Emprestimo(id_usuario=1,nome_pessoa=nome,id_equipamento=equipamento)
+        equipamentoAlterado = Equipamento.query.get(equipamento)
+        equipamentoAlterado.disponivel = False
         db.session.add(novoEmprestimo)
         db.session.commit()
         return(redirect(url_for('root')))
     return(render_template('form.html',form=form,action=url_for('emprestar_equipamento')))
+
+@app.route('/equipamento/devolver/<id_emprestimo>',methods=['POST','GET'])
+def devolver_equipamento(id_emprestimo):
+    id_emprestimo = int(id_emprestimo)
+    emprestimo = Emprestimo.query.get(id_emprestimo)
+    emprestimo.data_devolucao = datetime.now()
+    equipamento = Equipamento.query.get(emprestimo.id_equipamento)
+    equipamento.disponivel = True
+    db.session.commit()
+    return (redirect(url_for('root')))
+
+
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=80, url_prefix='/app')

@@ -2,6 +2,7 @@ from flask import Flask
 from waitress import serve
 from flask import render_template
 from flask import request,url_for,redirect,flash,session
+from flask_session import Session
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 import logging
@@ -11,13 +12,17 @@ from datetime import date, datetime
 from formEmprestimo import EmprestimoForm
 from formEquipamento import EquipamentoForm
 from formUsuario import UsuarioForm
+from formLogin import LoginForm
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 CSRFProtect(app)
 CSV_DIR = '/flask/'
 
+app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.urandom(24)
+app.config['WTF_CSRF_SSL_STRICT'] = False
+Session(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + CSV_DIR + 'bd.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -104,6 +109,30 @@ def devolver_equipamento(id_emprestimo):
     db.session.commit()
     return (redirect(url_for('root')))
 
+@app.route('/equipamento/remover/<id_emprestimo>',methods=['POST','GET'])
+def remover_emprestimo(id_emprestimo):
+    id_emprestimo = int(id_emprestimo)
+    emprestimo = Emprestimo.query.get(id_emprestimo)
+    id_equipamento = Emprestimo.id_equipamento
+    equipamento = Equipamento.query.get(id_equipamento)
+    equipamento.disponivel = True
+    db.session.delete(emprestimo)
+    db.session.commit()
+    return (redirect(url_for('root')))
+
+@app.route('/usuario/login',methods=['POST','GET'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        usuario = request.form['usuario']
+        senha = request.form['senha']
+        registro = Usuario.query.filter(Usuario.username == usuario,Usuario.password == senha).all()
+        if(len(registro) > 0):
+            session['autenticado'] = True
+            session['usuario'] = registro[0].id
+            return(redirect(url_for('root')))
+    return (render_template('form.html',form=form,action=url_for('login')))
+    
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=80, url_prefix='/app')

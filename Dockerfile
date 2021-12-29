@@ -6,6 +6,7 @@ RUN pip install numpy scipy pandas sympy matplotlib werkzeug Flask lxml unidecod
 RUN pip install semantic-version Pillow
 RUN pip install Flask-WTF
 RUN pip install wtforms[email]
+RUN pip install WTForms==2.3.3
 RUN pip install Flask-SQLAlchemy
 RUN pip install bootstrap-flask
 RUN pip install flask-security

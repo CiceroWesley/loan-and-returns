@@ -8,6 +8,7 @@ from flask_wtf.csrf import CSRFProtect
 import logging
 import os
 from datetime import date, datetime
+import hashlib
 
 from formEmprestimo import EmprestimoForm
 from formEquipamento import EquipamentoForm
@@ -60,18 +61,17 @@ def cadastrar_equipamento():
 
 @app.route('/usuario/cadastrar',methods=['POST','GET'])
 def cadastrar_usuario():
-    if session.get('autenticado',False)==False:
-       return (redirect(url_for('login')))
     form = UsuarioForm()
     if form.validate_on_submit():
         nome = request.form['nome']
         username = request.form['username']
         email = request.form['email']
         senha = request.form['senha']
-        User = Usuario(name=nome,username=username,email=email,password=senha)
+        senhahash = hashlib.sha1(senha.encode('utf8')).hexdigest()
+        User = Usuario(name=nome,username=username,email=email,password=senhahash)
         db.session.add(User)
         db.session.commit()
-        return(redirect(url_for('menu')))
+        return(redirect(url_for('root')))
     return (render_template('form.html',form=form,action=url_for('cadastrar_usuario')))
 
 @app.route('/equipamento/listar')
@@ -144,7 +144,8 @@ def login():
     if form.validate_on_submit():
         usuario = request.form['usuario']
         senha = request.form['senha']
-        registro = Usuario.query.filter(Usuario.username == usuario,Usuario.password == senha).all()
+        senhahash = hashlib.sha1(senha.encode('utf8')).hexdigest()
+        registro = Usuario.query.filter(Usuario.username == usuario,Usuario.password == senhahash).all()
         if(len(registro) > 0):
             session['autenticado'] = True
             session['usuario'] = registro[0].id

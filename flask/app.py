@@ -60,8 +60,6 @@ def cadastrar_equipamento():
 
 @app.route('/usuario/cadastrar',methods=['POST','GET'])
 def cadastrar_usuario():
-    if session.get('autenticado',False)==False:
-       return (redirect(url_for('login')))
     form = UsuarioForm()
     if form.validate_on_submit():
         nome = request.form['nome']
@@ -71,7 +69,7 @@ def cadastrar_usuario():
         User = Usuario(name=nome,username=username,email=email,password=senha)
         db.session.add(User)
         db.session.commit()
-        return(redirect(url_for('menu')))
+        return(redirect(url_for('root')))
     return (render_template('form.html',form=form,action=url_for('cadastrar_usuario')))
 
 @app.route('/equipamento/listar')

@@ -8,6 +8,7 @@ from flask_wtf.csrf import CSRFProtect
 import logging
 import os
 from datetime import date, datetime
+import hashlib
 
 from formEmprestimo import EmprestimoForm
 from formEquipamento import EquipamentoForm
@@ -66,7 +67,8 @@ def cadastrar_usuario():
         username = request.form['username']
         email = request.form['email']
         senha = request.form['senha']
-        User = Usuario(name=nome,username=username,email=email,password=senha)
+        senhahash = hashlib.sha1(senha.encode('utf8')).hexdigest()
+        User = Usuario(name=nome,username=username,email=email,password=senhahash)
         db.session.add(User)
         db.session.commit()
         return(redirect(url_for('root')))
@@ -142,7 +144,8 @@ def login():
     if form.validate_on_submit():
         usuario = request.form['usuario']
         senha = request.form['senha']
-        registro = Usuario.query.filter(Usuario.username == usuario,Usuario.password == senha).all()
+        senhahash = hashlib.sha1(senha.encode('utf8')).hexdigest()
+        registro = Usuario.query.filter(Usuario.username == usuario,Usuario.password == senhahash).all()
         if(len(registro) > 0):
             session['autenticado'] = True
             session['usuario'] = registro[0].id

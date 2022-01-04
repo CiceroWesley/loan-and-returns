@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+
+<table class="table table-dark table-striped">
+
+    <tr>
+        <th>ID do empréstimo</th>
+        <th>Quem pegou</th>
+        <th>Equipamento</th>
+        <th>Entrega</th>
+        <th>Devolução</th>
+        <th>Devolver</th>
+        <th>Remover</th>
+    </tr>
+    {% for emprestimo in emprestimos %}
+        <tr>
+            <td>{{emprestimo.id}}</td>
+            <td>{{emprestimo.usuario.name}}</td>
+            <td>{{emprestimo.equipamento.nome}}</td>
+            <td>{{emprestimo.data_emprestimo.strftime('%d/%m/%Y %H:%M')}}</td>
+            {% if emprestimo.data_devolucao is not none %}
+                <td>{{emprestimo.data_devolucao.strftime('%d/%m/%Y %H:%M')}}</td>
+            {% else %}
+                <td>NÃO DEVOLVIDA</td>
+            {% endif %}
+            <td><a href="{{url_for('devolver_equipamento',id_emprestimo=emprestimo.id)}}">DEVOLVER</a></td>
+            <td><a href="{{url_for('remover_emprestimo',id_emprestimo=emprestimo.id)}}">REMOVER </a></td>   
+        </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}

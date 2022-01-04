@@ -2,5 +2,24 @@
 
 {% block conteudo %}
 
+<table class = "table table-dark table-striped">
+<tr>
+    <th>ID</th>
+    <th>Nome</th>
+    <th>Disponível ?</th>
+</tr>
+{% for equipamento in equipamentos %}
+    <tr>
+        <td>{{equipamento.id}}</td>
+        <td>{{equipamento.nome}}</td>     
+        {% if equipamento.disponivel is true %}
+            <td>DISPONÍVEL</td>
+        {% else %}
+            <td>INDISPONÍVEL</td>
+        {% endif %}
+    </tr>
+{% endfor %}
+
+</table>
 
 {% endblock %}

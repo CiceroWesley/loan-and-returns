@@ -78,21 +78,22 @@ def cadastrar_usuario():
 def listar_equipamentos():
     if session.get('autenticado',False)==False:
        return (redirect(url_for('login')))
-    #selecionar os equipamentos e mostrar no template equipamentos
-    return ('Falta implementar')
+    equipamentos = Equipamento.query.order_by(Equipamento.nome).all()
+    return (render_template('equipamentos.html',equipamentos=equipamentos))
 
 @app.route('/equipamento/listar_emprestimos')
 def listar_emprestimos():
     if session.get('autenticado',False)==False:
        return (redirect(url_for('login')))
-    return ('Falta')
+    emprestimos = Emprestimo.query.order_by(Emprestimo.data_emprestimo.desc()).all()
+    return(render_template('emprestimos.html',emprestimos=emprestimos))
 
 @app.route('/usuario/listar')
 def listar_usuarios():
     if session.get('autenticado',False)==False:
        return (redirect(url_for('login')))
-    #selecionar os usuarios e mostrar no template usuarios
-    return('Falta implementar')
+    usuarios = Usuario.query.order_by(Usuario.name).all()
+    return(render_template('usuarios.html',usuarios=usuarios))
 
 @app.route('/equipamento/emprestar',methods=['POST','GET'])
 def emprestar_equipamento():
@@ -103,9 +104,9 @@ def emprestar_equipamento():
     form.equipamento.choices = [(e.id,e.nome) for e in equipamentos]
 
     if form.validate_on_submit():
-        nome = request.form['nome']
         equipamento = int(request.form['equipamento'])
-        novoEmprestimo = Emprestimo(id_usuario=1,nome_pessoa=nome,id_equipamento=equipamento)
+        id_user = session.get('usuario',None)
+        novoEmprestimo = Emprestimo(id_usuario=id_user,id_equipamento=equipamento)
         equipamentoAlterado = Equipamento.query.get(equipamento)
         equipamentoAlterado.disponivel = False
         db.session.add(novoEmprestimo)
@@ -119,10 +120,14 @@ def devolver_equipamento(id_emprestimo):
        return (redirect(url_for('login')))
     id_emprestimo = int(id_emprestimo)
     emprestimo = Emprestimo.query.get(id_emprestimo)
-    emprestimo.data_devolucao = datetime.now()
-    equipamento = Equipamento.query.get(emprestimo.id_equipamento)
-    equipamento.disponivel = True
-    db.session.commit()
+    if(session.get('usuario',None) == emprestimo.id_usuario):
+        emprestimo.data_devolucao = datetime.now()
+        equipamento = Equipamento.query.get(emprestimo.id_equipamento)
+        equipamento.disponivel = True
+        db.session.commit()
+    else: 
+        flash(u'Você não pegou esse equipamento')
+        return (redirect(url_for('listar_emprestimos')))
     return (redirect(url_for('menu')))
 
 @app.route('/equipamento/remover/<id_emprestimo>',methods=['POST','GET'])
@@ -131,11 +136,16 @@ def remover_emprestimo(id_emprestimo):
        return (redirect(url_for('login')))
     id_emprestimo = int(id_emprestimo)
     emprestimo = Emprestimo.query.get(id_emprestimo)
-    id_equipamento = Emprestimo.id_equipamento
-    equipamento = Equipamento.query.get(id_equipamento)
-    equipamento.disponivel = True
-    db.session.delete(emprestimo)
-    db.session.commit()
+    if(session.get('usuario',None) == emprestimo.id_usuario):
+        id_equipamento = emprestimo.id_equipamento
+        equipamento = Equipamento.query.get(id_equipamento)
+        equipamento.disponivel = True
+        db.session.delete(emprestimo)
+        db.session.commit()        
+    else: 
+        flash(u'Você não pegou esse equipamento')
+        return (redirect(url_for('listar_emprestimos')))    
+    
     return (redirect(url_for('menu')))
 
 @app.route('/usuario/login',methods=['POST','GET'])

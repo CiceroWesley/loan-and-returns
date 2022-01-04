@@ -4,12 +4,11 @@ from sqlalchemy.sql import func
 
 
 class Emprestimo(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  id_usuario = db.Column(db.Integer,db.ForeignKey('usuario.id'))
-  nome_pessoa = db.Column(db.String(100),unique=False,nullable=True)
-  id_equipamento = db.Column(db.Integer,db.ForeignKey('equipamento.id'))
-  data_emprestimo = db.Column(db.DateTime,unique=False,nullable=False,default=func.now())
-  data_devolucao = db.Column(db.DateTime,unique=False,nullable=True)
+    id = db.Column(db.Integer, primary_key=True)
+    id_usuario = db.Column(db.Integer,db.ForeignKey('usuario.id'))
+    id_equipamento = db.Column(db.Integer,db.ForeignKey('equipamento.id'))
+    data_emprestimo = db.Column(db.DateTime,unique=False,nullable=False,default=func.now())
+    data_devolucao = db.Column(db.DateTime,unique=False,nullable=True)
 
 
   

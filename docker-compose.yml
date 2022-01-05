@@ -10,4 +10,4 @@ services:
        TZ: America/Fortaleza
     restart: always
     ports:
-      - "4005:80"
+      - "4000:80"

@@ -24,9 +24,10 @@
             {% else %}
                 <td>NÃO DEVOLVIDA</td>
             {% endif %}
-            <td><a href="{{url_for('devolver_equipamento',id_emprestimo=emprestimo.id)}}">DEVOLVER</a></td>
-            <td><a href="{{url_for('remover_emprestimo',id_emprestimo=emprestimo.id)}}">REMOVER </a></td>   
+            <td><a class="btn btn-primary" style="background-color: green; border-color: green;" href="{{url_for('devolver_equipamento',id_emprestimo=emprestimo.id)}}" role="button">DEVOLVER</a></td>
+            <td><a class="btn btn-primary" style="background-color: red; border-color: red;" href="{{url_for('remover_emprestimo',id_emprestimo=emprestimo.id)}}" role="button">REMOVER </a></td>   
         </tr>
+
     {% endfor %}
 
 </table>

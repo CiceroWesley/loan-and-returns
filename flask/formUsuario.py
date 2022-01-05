@@ -9,3 +9,5 @@ class UsuarioForm(FlaskForm):
     email = EmailField('E-mail: ', validators=[DataRequired()],render_kw={'class':'myclass','style':'width: 50%;'})
     senha = PasswordField('Senha: ',validators=[DataRequired()],render_kw={'class':'myclass','style':'width: 50%;'})
     enviar = SubmitField('CADASTRAR')
+
+
